@@ -21,12 +21,14 @@ public class Paciente {
     private String email;
     private String cpf;
     private String telefone;
+    private boolean ativo;
 
     public Paciente(DadosPacienteCadastrar dados) {
         this.nome = dados.nome();
         this.email = dados.email();
         this.cpf = dados.cpf();
         this.telefone = dados.telefone();
+        this.ativo = true;
     }
 
     public void atulizarDados(DadosAtualizarPaciente dados) {
@@ -39,5 +41,9 @@ public class Paciente {
         if(dados.telefone() != null) {
             this.telefone = dados.telefone();
         }
+    }
+
+    public void excluir() {
+        this.ativo = false;
     }
 }

@@ -2,6 +2,7 @@ package med.voll.api.infra.exceptions;
 
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
+import med.voll.api.domain.ValidacaoException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -27,6 +28,11 @@ public class TratadorDeErros {
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     public ResponseEntity tratarErroDadoDuplicado(SQLIntegrityConstraintViolationException exception) {
         return ResponseEntity.badRequest().body(new DadosDuplicadosErro(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ValidacaoException.class)
+    public ResponseEntity tratarErroRegraDeNegocio(ValidacaoException exception) {
+        return ResponseEntity.badRequest().body(exception.getMessage());
     }
 
     private record DadosErroValidacao(String campo, String mensagem) {
