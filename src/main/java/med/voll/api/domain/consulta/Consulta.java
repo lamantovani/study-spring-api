@@ -31,4 +31,10 @@ public class Consulta {
     private Paciente paciente;
 
     private LocalDateTime data;
+
+    private MotivoCancelamentoConsulta motivoCancelamento;
+
+    public void cancelarAgendamento(DadosCancelamentoConsulta dados) {
+        this.motivoCancelamento = dados.motivoCancelamento();
+    }
 }
