@@ -32,6 +32,7 @@ public class Consulta {
 
     private LocalDateTime data;
 
+    @Enumerated(EnumType.STRING)
     private MotivoCancelamentoConsulta motivoCancelamento;
 
     public void cancelarAgendamento(DadosCancelamentoConsulta dados) {

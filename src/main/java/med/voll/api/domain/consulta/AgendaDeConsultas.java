@@ -2,14 +2,13 @@ package med.voll.api.domain.consulta;
 
 import med.voll.api.domain.ValidacaoException;
 import med.voll.api.domain.consulta.validacoes.ValidadorAgendamentoDeConsulta;
+import med.voll.api.domain.consulta.validacoes.ValidarCancelamentoDeConsulta;
 import med.voll.api.domain.medico.Medico;
 import med.voll.api.domain.medico.MedicoRepository;
 import med.voll.api.domain.paciente.PacienteRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,7 +24,10 @@ public class AgendaDeConsultas {
     private PacienteRepository pacienteRepository;
 
     @Autowired
-    private List<ValidadorAgendamentoDeConsulta> validadores;
+    private List<ValidadorAgendamentoDeConsulta> validadoresAgendamento;
+
+    @Autowired
+    private List<ValidarCancelamentoDeConsulta> validadoresCancelamento;
 
     public DadosAgendamentoConsultaConfirmacao agendar(DadosAgendamentoConsulta dados) {
 
@@ -37,7 +39,7 @@ public class AgendaDeConsultas {
             throw new ValidacaoException("Id do paciente informado não existe!");
         }
 
-        validadores.forEach(v -> v.validar(dados));
+        validadoresAgendamento.forEach(v -> v.validar(dados));
 
         var medico = escolherMedico(dados);
         if (medico == null) {
@@ -49,6 +51,19 @@ public class AgendaDeConsultas {
         consultaRepository.save(consulta);
         return new DadosAgendamentoConsultaConfirmacao(consulta, medico, paciente);
 
+    }
+
+    public DadosCancelamentoConsultaConfirmacao cancelar(DadosCancelamentoConsulta dados) {
+
+        if (!consultaRepository.existsById(dados.idConsulta())) {
+            throw new ValidacaoException("Agendamento de consulta não encontrado");
+        }
+
+        validadoresCancelamento.forEach(validador -> validador.validar(dados));
+
+        var consulta = consultaRepository.getReferenceById(dados.idConsulta());
+        consulta.cancelarAgendamento(dados);
+        return new DadosCancelamentoConsultaConfirmacao("Cancelamento efetuado com sucesso.");
     }
 
     private Medico escolherMedico(DadosAgendamentoConsulta dados) {
@@ -63,22 +78,5 @@ public class AgendaDeConsultas {
         return medicoRepository.escolherMedicoAleatorioLivreNaData(dados.especialidade(), dados.data());
     }
 
-    public DadosCancelamentoConsultaConfirmacao cancelar(DadosCancelamentoConsulta dados) {
 
-        if (!consultaRepository.existsById(dados.idConsulta())) {
-            throw new ValidacaoException("Agendamento de consulta não encontrado");
-        }
-
-        var consulta = consultaRepository.getReferenceById(dados.idConsulta());
-        System.out.println("CONSULTA ==> " + consulta.toString());
-        var dataCancelamento = LocalDateTime.now();
-        var dataConsultaAdendada = consulta.getData();
-        long diferencaEmHoras = Duration.between(dataCancelamento, dataConsultaAdendada).toHours();
-        if (diferencaEmHoras < 24) {
-            throw new ValidacaoException("O cancelamento só pode ser realizado com 24h de antecedência.");
-        }
-
-        consulta.cancelarAgendamento(dados);
-        return new DadosCancelamentoConsultaConfirmacao("Cancelamento efetuado com sucesso.");
-    }
 }
