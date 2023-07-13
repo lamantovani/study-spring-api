@@ -12,7 +12,6 @@ import java.util.List;
 public interface MedicoRepository extends JpaRepository<Medico, Long> {
     Page<Medico> findAllByAtivoTrue(Pageable paginacao);
 
-
     @Query("""
             SELECT m FROM Medico m
                 WHERE
