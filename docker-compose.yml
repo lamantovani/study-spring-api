@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  mysql:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: 'root123'
+      MYSQL_DATABASE: 'vollmed_api'
+      MYSQL_USER: 'admin'
+      MYSQL_PASSWORD: 'admin123'
+    volumes:
+      - ./mysql_data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  api:
+    image: alura/voll_med.api
+    environment:
+      SPRING_DATASOURCE_URL: 'jdbc:mysql://mysql:3306/vollmed_api?useSSL=false&allowPublicKeyRetrieval=true'
+      SPRING_DATASOURCE_USERNAME: 'root'
+      SPRING_DATASOURCE_PASSWORD: 'root123'
+    ports:
+      - "8080:8080"
